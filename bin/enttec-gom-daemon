@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'rubygems'
+require 'bundler/setup'
 require 'applix'
 $:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
 require 'enttec-dmx-usb-pro-tools'

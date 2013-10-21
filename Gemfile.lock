@@ -1,0 +1,45 @@
+GIT
+  remote: https://github.com/crux/gom-core.git
+  revision: cb15c2f8413a3342b1f1bb9dd89b1853643c4f7b
+  specs:
+    gom-core (0.2.2)
+
+GIT
+  remote: https://github.com/crux/gom-script.git
+  revision: 396c49a8234b885b1e462dd9c1d61f54c23ea781
+  specs:
+    gom-script (0.2.4)
+      applix
+      gom-core (~> 0.2.2)
+      json
+      mongrel (>= 1.2.0.pre2)
+      rack
+
+GIT
+  remote: https://github.com/toholio/ruby-serialport.git
+  revision: 611964448b8bec95b29733b355d926a2f24a451b
+  specs:
+    serialport (0.7.2)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    applix (0.2.1)
+    daemons (1.0.10)
+    gem_plugin (0.2.3)
+    json (1.8.1)
+    mongrel (1.2.0.pre2)
+      daemons (~> 1.0.10)
+      gem_plugin (~> 0.2.3)
+    nokogiri (1.4.4)
+    rack (1.5.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  applix (= 0.2.1)
+  gom-core!
+  gom-script!
+  nokogiri (= 1.4.4)
+  serialport!

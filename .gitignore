@@ -6,3 +6,5 @@ tmp
 pkg
 log/*
 *.gemspec
+.ruby-gemset
+.ruby-version
