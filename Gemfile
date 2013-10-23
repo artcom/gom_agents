@@ -30,8 +30,21 @@ source 'https://rubygems.org'
 #rubyforge (2.0.3)
 # 
 #
-gem 'applix', '0.2.1'
-gem 'nokogiri', '1.4.4'
-gem 'gom-core', :git => 'https://github.com/crux/gom-core.git' 
-gem 'gom-script', :git => 'https://github.com/crux/gom-script.git'
-gem 'serialport', :git => 'https://github.com/toholio/ruby-serialport.git'
+#gem 'applix', '0.2.1'
+gem 'nokogiri'
+#gem 'gom-core', :git => 'https://github.com/crux/gom-core.git' 
+#gem 'gom-script', :git => 'https://github.com/crux/gom-script.git'
+gem 'serialport'
+
+gem 'gom-client', :git => 'https://github.com/artcom/gom-client-ruby.git'
+gem 'reel'
+gem 'celluloid-io'
+group :test, :development do
+  gem 'debugger'
+  gem 'guard'
+  gem 'guard-rspec'
+  gem 'guard-rubocop'
+  gem 'rubocop'
+  gem 'chromatic'
+end
+

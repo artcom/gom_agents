@@ -2,30 +2,17 @@
 
 require 'rubygems'
 require 'bundler/setup'
-require 'applix'
-$:.unshift File.join(File.dirname(__FILE__), '..', 'lib')
-require 'enttec-dmx-usb-pro-tools'
 
-#Thread.abort_on_exception = true
-$stderr.sync = true
-$stdout.sync = true
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+require 'enttec_gom_daemon'
 
-def main argv
-  options = Hash.from_argv argv
-  #options[:callback_port] ||= 2351
-
-  puts " -- starting #{File.basename __FILE__} at #{Time.now}"
-  args = (options.delete :args)
-  service_url = args.shift
-  Gom::Remote::Daemon.new(service_url, options) do |daemon, path|
-    service = Enttec::DmxNode.new path, options
-    daemon.redirect_log service.logfile
-    daemon.actor_loop { |daemon| puts " -- gom refresh: #{Time.now}" }
-  end
-
+begin
+  APP = EnttecGomDaemon::App.instance
+  APP.parse
+  APP.run
 rescue => e
-  puts " ## #{e}\n -> #{e.backtrace.join "\n    "}"
+  raise e if $DEBUG
+  STDERR.puts e.message
+  STDERR.puts e.backtrace.join("\n")
+  exit 1
 end
-
-main ARGV
-# vim: syntax=ruby

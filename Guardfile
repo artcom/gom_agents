@@ -1,0 +1,28 @@
+guard :rspec do
+  watch('Guardfile') { 'spec' } # maybe also have a look at guard-ego?
+  watch('Gemfile')  { 'spec' } 
+  watch('Gemfile.lock')  { 'spec' }
+  
+  watch('spec/spec_helper.rb')  { "spec" }
+  
+  watch(%r{^spec\/.+_spec\.rb$})
+  
+  # watch(%r{^lib\/(.+)\.rb$})     { |m| "spec/lib/#{m[1]}_spec.rb" }
+  
+  # watch(%r{^lib\/([a-zA-Z_]+)\.rb$}) { |m|
+  #   Dir["spec/**/#{m[1]}*_spec.rb"]
+  # }
+  
+  watch(%r{^lib\/enttec_gom_daemon\/(.+)\.rb$}) { |m|
+    Dir[
+      #{}"spec/**/#{m[1]}_*_spec.rb",
+      "spec/**/#{m[1]}*_spec.rb"
+    ]#.uniq
+  }
+  
+end
+
+#guard :rubocop, all_on_start: false do
+#  watch(%r{.+\.rb$})
+#  watch(%r{(?:.+/)?\.rubocop\.yml$}) { |m| File.dirname(m[0]) }
+#end
