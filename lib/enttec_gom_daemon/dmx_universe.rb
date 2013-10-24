@@ -1,5 +1,4 @@
 require 'gom/client'
-require 'nokogiri'
 
 module EnttecGomDaemon
   
@@ -35,7 +34,6 @@ module EnttecGomDaemon
     end
    
     def on_gnp _, gnp
-      debug "GNP:#{gnp.inspect}"
       case gnp[:uri]
       when %r|#{@gom_path}/values:(.*)$|
         on_channel_gnp gnp 
@@ -45,13 +43,12 @@ module EnttecGomDaemon
     end
 
     def on_universe_gnp gnp
-      debug "UNIVERSE #{gnp.inspect}"
+      # debug "UNIVERSE #{gnp.inspect}"
       updates = []
       if gnp.key?(:initial)
         gnp[:initial][:node][:entries].each do |entry|
           if entry.key?(:attribute)
-            updates << [Integer(entry[:attribute][:name]), 
-                        Integer(entry[:attribute][:value])]
+            updates << [entry[:attribute][:name], entry[:attribute][:value]]
           end
         end
         update_values updates
@@ -59,21 +56,25 @@ module EnttecGomDaemon
     end
 
     def on_channel_gnp gnp
-      debug "CHANNEL #{gnp.inspect}"
+      # debug "CHANNEL #{gnp.inspect}"
       updates = []
-      debugger
       if gnp.key?(:update) && gnp[:update].key?(:attribute)
         attribute = gnp[:update][:attribute]
-        updates << [Integer(attribute[:name]), 
-                    Integer(attribute[:value])]
+        updates << [attribute[:name], attribute[:value]]
         update_values updates
       end
     end
 
     def update_values updates
       updates.each do |channel, value|
-        validate_dmx_range channel, value
-        @dmx_values[channel-1] = value
+        begin
+          c = Integer(channel)
+          v = Integer(value)
+          validate_dmx_range c, v
+          @dmx_values[c-1] = v
+        rescue => e
+          warn " ## #{e}"
+        end
       end
       publish 'dmx_universe', @dmx_values
     end
