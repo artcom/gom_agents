@@ -19,11 +19,12 @@ module EnttecGomDaemon
       end
       @parser.banner = "#{$0} [gom-node-uri]"
       @parser.parse!(argv)
-      @@gom_uri = URI.parse(argv.first)
+      @gom_uri = URI.parse(argv.first)+"/"
+      @app_path = URI.parse(argv.first).path
     end
    
     def path
-      @@gom_uri.path
+      @app_path
     end
 
     def run
@@ -31,7 +32,10 @@ module EnttecGomDaemon
       #UdpPipesManager.supervise_as :udp_pipes_manager
       #Recorder.supervise_as :recorder, RECORDING_DIR
       #Player.supervise_as :player, RECORDING_DIR
-      WebServer.supervise_as :reel, WEB_SERVER_PORT
+      @gom =  Gom::Client.new @gom_uri.to_s
+      GomObserver.supervise_as :gom_observer, @gom
+      DmxUniverse.supervise_as :dmx_universe, @gom, @app_path 
+      # WebServer.supervise_as :reel, WEB_SERVER_PORT
       sleep
     end
     

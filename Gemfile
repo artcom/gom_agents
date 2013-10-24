@@ -31,11 +31,12 @@ source 'https://rubygems.org'
 # 
 #
 #gem 'applix', '0.2.1'
-gem 'nokogiri'
 #gem 'gom-core', :git => 'https://github.com/crux/gom-core.git' 
 #gem 'gom-script', :git => 'https://github.com/crux/gom-script.git'
 gem 'serialport'
+gem 'nokogiri'
 
+gem 'celluloid-websocket-client', git: 'https://github.com/jeremyd/celluloid-websocket-client'
 gem 'gom-client', :git => 'https://github.com/artcom/gom-client-ruby.git'
 gem 'reel'
 gem 'celluloid-io'
@@ -43,6 +44,7 @@ group :test, :development do
   gem 'debugger'
   gem 'guard'
   gem 'guard-rspec'
+  gem 'guard-bundler'
   gem 'guard-rubocop'
   gem 'rubocop'
   gem 'chromatic'
