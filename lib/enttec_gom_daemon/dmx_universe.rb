@@ -11,12 +11,13 @@ module EnttecGomDaemon
     attr_reader :dmx_values
 
     # TODO do not hardwire port
-    def initialize gom, gom_path
-      @gom = gom
-      @gom_path = gom_path
+    def initialize
+      @values_path = "#{App.app_node}/values"
       @dmx_values = (Array.new 512, 0)
 
-      Actor[:gom_observer].async.gnp_subscribe "#{@gom_path}/values"
+      debug 'DmxUniverse -- initializing'
+      link Celluloid::Actor[:gom_observer]
+      Actor[:gom_observer].async.gnp_subscribe @values_path
 
 
       #xml = @gom.retrieve "#{@gom_path}/values.xml"
@@ -35,9 +36,9 @@ module EnttecGomDaemon
    
     def on_gnp _, gnp
       case gnp[:uri]
-      when %r|#{@gom_path}/values:(.*)$|
+      when %r|#{@values_path}:(.*)$|
         on_channel_gnp gnp 
-      when %r|#{@gom_path}/values$|
+      when %r|#{@values_path}$|
         on_universe_gnp gnp
       end
     end

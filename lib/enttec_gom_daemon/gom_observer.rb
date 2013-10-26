@@ -9,11 +9,13 @@ module EnttecGomDaemon
     include Celluloid::Logger
     include Celluloid::Notifications
     
-    def initialize gom, channel = "gnp"
-      @gom = gom
-      @channel = channel
+    def initialize gom = nil
+      @gom = gom || App.gom
+      @channel = "gnp"
       ws_url = @gom.retrieve "/services/websockets_proxy:url"
       raise "'/services/websockets_proxy:url' not found in gom!" unless ws_url
+
+      debug "GomObserver - initializing"
 
       @client = future.open_websocket ws_url[:attribute][:value]
 
@@ -21,7 +23,9 @@ module EnttecGomDaemon
     end
 
     def open_websocket url
-      Celluloid::WebSocket::Client.new(url, current_actor) 
+      client = Celluloid::WebSocket::Client.new(url, current_actor)
+      link client
+      client
     end
    
     #def debug_sub c,p
@@ -75,9 +79,12 @@ module EnttecGomDaemon
     def handle_gnp data
       payload = JSON.parse(data['payload'], :symbolize_names => true)
       publish @channel, payload 
-      # puts "handle_gnp: #{payload.inspect}".yellow
+      if payload[:uri] == "/services/enttec-dmx-usb-pro/values:35"
+        raise "intentional crash"
+      end
+      puts "handle_gnp: #{payload.inspect}".yellow
     end
-    
+
   end
   
 end

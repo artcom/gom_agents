@@ -8,7 +8,7 @@ require 'enttec_gom_daemon'
 
 begin
   APP = EnttecGomDaemon::App.instance
-  APP.parse
+  EnttecGomDaemon::App.parse
   APP.run
 rescue => e
   raise e if $DEBUG
