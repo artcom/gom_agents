@@ -11,27 +11,17 @@ module EnttecGomDaemon
     attr_reader :dmx_values
 
     # TODO do not hardwire port
-    def initialize
-      @values_path = "#{App.app_node}/values"
+    def initialize values_path = nil
+      @values_path = values_path || "#{App.app_node}/values"
       @dmx_values = (Array.new 512, 0)
+      @rdmx = Rdmx::Dmx.new App.device_file unless App.device_file.nil? 
 
       debug 'DmxUniverse -- initializing'
+      subscribe 'gnp', :on_gnp
+      # puts Celluloid::Actor[:gom_observer] 
       link Celluloid::Actor[:gom_observer]
       Actor[:gom_observer].async.gnp_subscribe @values_path
 
-
-      #xml = @gom.retrieve "#{@gom_path}/values.xml"
-      #(Nokogiri::parse xml).xpath("//attribute").each do |a|
-      #  begin
-      #    chan = Integer(a.attributes['name'].to_s)
-      #    val = Integer(a.text)
-      #    validate_dmx_range chan, val
-      #    @dmx_values[chan-1] = val
-      #  rescue => e
-      #    info " ## #{e}"
-      #  end
-      #end
-      subscribe 'gnp', :on_gnp
     end
    
     def on_gnp _, gnp
@@ -59,10 +49,20 @@ module EnttecGomDaemon
     def on_channel_gnp gnp
       # debug "CHANNEL #{gnp.inspect}"
       updates = []
-      if gnp.key?(:update) && gnp[:update].key?(:attribute)
+      if gnp.key?(:update) && gnp[:update].key?(:attribute) 
         attribute = gnp[:update][:attribute]
         updates << [attribute[:name], attribute[:value]]
         update_values updates
+      elsif gnp.key?(:create) && gnp[:create].key?(:attribute) 
+        attribute = gnp[:create][:attribute]
+        updates << [attribute[:name], attribute[:value]]
+        update_values updates
+      elsif gnp.key?(:delete) && gnp[:delete].key?(:attribute) 
+        attribute = gnp[:delete][:attribute]
+        updates << [attribute[:name], 0]
+        update_values updates
+      else
+        warn "unsupported gnp '#{gnp.inspect}'"
       end
     end
 
@@ -77,6 +77,7 @@ module EnttecGomDaemon
           warn " ## #{e}"
         end
       end
+      @rdmx.write *(@dmx_values) unless @rdmx.nil?
       publish 'dmx_universe', @dmx_values
     end
 

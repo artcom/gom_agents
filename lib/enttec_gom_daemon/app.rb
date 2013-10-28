@@ -15,7 +15,7 @@ module EnttecGomDaemon
     end
     
     class << self
-      attr_reader :gom, :app_node
+      attr_reader :gom, :app_node, :device_file
 
       def parse(argv = ARGV)
         parser = OptionParser.new do |o|
@@ -29,6 +29,8 @@ module EnttecGomDaemon
         gom_uri = URI.parse(argv.first)+"/"
         @app_node = URI.parse(argv.first).path
         @gom =  Gom::Client.new gom_uri.to_s
+        @device_file = gom.retrieve("#{@app_node}:device_file")[:attribute][:value]
+        true
       end
     end
     
