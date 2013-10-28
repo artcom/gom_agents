@@ -76,12 +76,13 @@ module EnttecGomDaemon
       # puts "handle_initial: #{payload.inspect}".yellow
     end
 
+    def die!
+      raise "died intentionally"
+    end
+
     def handle_gnp data
       payload = JSON.parse(data['payload'], :symbolize_names => true)
       publish @channel, payload 
-      if payload[:uri] == "/services/enttec-dmx-usb-pro/values:35"
-        raise "intentional crash"
-      end
       puts "handle_gnp: #{payload.inspect}".yellow
     end
 
