@@ -75,7 +75,7 @@ describe EnttecGomDaemon::GnpDmxAdapter do
     
     it "should process deletes" do
       expect(subject.on_gnp delete_notification).to eq(
-        [{:channel=>"16", :value=>"0"}]
+        [{:channel=>"16", :value=>nil}]
       ) 
     end
   end

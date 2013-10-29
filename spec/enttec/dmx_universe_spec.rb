@@ -28,7 +28,7 @@ describe EnttecGomDaemon::DmxUniverse do
       { :channel => "1", :value => "1" },
       { :channel => "4", :value => "s2" }
     ]
-    a = (Array.new 512, 0)
+    a = (Array.new 512, nil)
     a[0] = 1
     expect(subject.dmx_values).to eq(a)
   end
@@ -42,7 +42,7 @@ describe EnttecGomDaemon::DmxUniverse do
       { :channel => "3", :value => "54321" },
       { :channel => "4", :value => "-1" }
     ]
-    a = (Array.new 512, 0)
+    a = (Array.new 512, nil)
     a[511] = 1
     expect(subject.dmx_values).to eq(a)
   end
@@ -54,7 +54,7 @@ describe EnttecGomDaemon::DmxUniverse do
       { :channel => "600", :value => "1" },
       { :channel => "0", :value => "1" }
     ]
-    a = (Array.new 512, 0)
+    a = (Array.new 512, nil)
     a[0] = 1
     expect(subject.dmx_values).to eq(a)
   end
@@ -66,7 +66,7 @@ describe EnttecGomDaemon::DmxUniverse do
       { :channel => "17", :value => "23" },
       { :channel => "245", :value => "177" }
     ]
-    a = (Array.new 512, 0)
+    a = (Array.new 512, nil)
     a[0] = 1; a[16] = 23; a[244] = 177
     expect(subject.dmx_values).to eq(a)
   end
@@ -81,7 +81,7 @@ describe EnttecGomDaemon::DmxUniverse do
         { :channel => "17", :value => "23" },
         { :channel => "245", :value => "177" }
       ]
-      @expected = (Array.new 512, 0)
+      @expected = (Array.new 512, nil)
       @expected[0] = 1; @expected[16] = 23; @expected[244] = 177
     }
 
@@ -108,9 +108,9 @@ describe EnttecGomDaemon::DmxUniverse do
     end
     it 'processes GOM deletes' do
       @publisher.send_message 'dmx_updates', [
-        { :channel => "17", :value => "0" }
+        { :channel => "17", :value => nil }
       ]
-      @expected[16] = 0
+      @expected[16] = nil
       eventually {
         expect(subscriber.received_events.size).to eq(2)
         expect(subscriber.received_events.last).to eq(@expected)
