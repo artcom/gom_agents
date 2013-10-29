@@ -29,8 +29,10 @@ module EnttecGomDaemon
         gom_uri = URI.parse(argv.first)+"/"
         @app_node = URI.parse(argv.first).path
         @gom =  Gom::Client.new gom_uri.to_s
-        @device_file = gom.retrieve("#{@app_node}:device_file")[:attribute][:value]
-        @osc_port = gom.retrieve("#{@app_node}:osc_port")[:attribute][:value]
+        @device_file = gom.retrieve("#{@app_node}:device_file")[:attribute][:value] rescue nil
+        Celluloid::Logger.error "#{@app_node}:device_file missing - not opening serial port" if @device_file.nil?
+        @osc_port = gom.retrieve("#{@app_node}:osc_port")[:attribute][:value] rescue nil
+        Celluloid::Logger.error "#{@app_node}:osc_port missing - not starting OSC server" if @osc_port.nil?
       end
     end
 
