@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'bundler/setup'
+require 'optparse'
+require 'osc-ruby'
+
+$LOAD_PATH.push File.expand_path('../../lib', __FILE__)
+
+@@options = {
+  :host => "127.0.0.1",
+  :port => 4444,
+  :channel => 1
+}
+def parse(argv = ARGV)
+  parser = OptionParser.new do |o|
+    o.on '-v', '--version', 'version of this application' do |arg|
+      puts VERSION
+      exit(0)
+    end
+    o.on '-H', '--host [hostname]', String, 'IP address or hostname of osc server (defaults to 127.0.0.1)' do |arg|
+      @@options[:host] = arg
+    end
+    o.on '-P', '--port [port]', Integer, 'UDP port to send to (default 4444)' do |arg|
+      @@options[:port] = arg
+    end
+    o.on '-c', '--channel [channel]', Integer, 'DMX channel to change (default 1)' do |arg|
+      @@options[:channel] = arg
+    end
+  end
+  parser.banner = "#{$0} [options] channel value"
+  parser.parse!(argv)
+end
+
+args = parse(ARGV)
+@client = OSC::Client.new( @@options[:host], @@options[:port] )
+@client.send( OSC::Message.new( "/light/1/#{@@options[:channel]}" , Integer(args.first) ))

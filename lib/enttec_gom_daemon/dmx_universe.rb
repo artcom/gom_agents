@@ -17,60 +17,17 @@ module EnttecGomDaemon
       @rdmx = Rdmx::Dmx.new App.device_file unless App.device_file.nil? 
 
       debug 'DmxUniverse -- initializing'
-      subscribe 'gnp', :on_gnp
-      # puts Celluloid::Actor[:gom_observer] 
+      subscribe 'dmx_updates', :update_values
       link Celluloid::Actor[:gom_observer]
       Actor[:gom_observer].async.gnp_subscribe @values_path
 
     end
    
-    def on_gnp _, gnp
-      case gnp[:uri]
-      when %r|#{@values_path}:(.*)$|
-        on_channel_gnp gnp 
-      when %r|#{@values_path}$|
-        on_universe_gnp gnp
-      end
-    end
-
-    def on_universe_gnp gnp
-      # debug "UNIVERSE #{gnp.inspect}"
-      updates = []
-      if gnp.key?(:initial)
-        gnp[:initial][:node][:entries].each do |entry|
-          if entry.key?(:attribute)
-            updates << [entry[:attribute][:name], entry[:attribute][:value]]
-          end
-        end
-        update_values updates
-      end
-    end
-
-    def on_channel_gnp gnp
-      # debug "CHANNEL #{gnp.inspect}"
-      updates = []
-      if gnp.key?(:update) && gnp[:update].key?(:attribute) 
-        attribute = gnp[:update][:attribute]
-        updates << [attribute[:name], attribute[:value]]
-        update_values updates
-      elsif gnp.key?(:create) && gnp[:create].key?(:attribute) 
-        attribute = gnp[:create][:attribute]
-        updates << [attribute[:name], attribute[:value]]
-        update_values updates
-      elsif gnp.key?(:delete) && gnp[:delete].key?(:attribute) 
-        attribute = gnp[:delete][:attribute]
-        updates << [attribute[:name], 0]
-        update_values updates
-      else
-        warn "unsupported gnp '#{gnp.inspect}'"
-      end
-    end
-
-    def update_values updates
-      updates.each do |channel, value|
+    def update_values _, updates
+      updates.each do |update|
         begin
-          c = Integer(channel)
-          v = Integer(value)
+          c = Integer(update[:channel])
+          v = Integer(update[:value])
           validate_dmx_range c, v
           @dmx_values[c-1] = v
         rescue => e

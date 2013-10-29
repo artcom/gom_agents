@@ -15,7 +15,7 @@ module EnttecGomDaemon
     end
     
     class << self
-      attr_reader :gom, :app_node, :device_file
+      attr_reader :gom, :app_node, :device_file, :osc_port
 
       def parse(argv = ARGV)
         parser = OptionParser.new do |o|
@@ -30,14 +30,17 @@ module EnttecGomDaemon
         @app_node = URI.parse(argv.first).path
         @gom =  Gom::Client.new gom_uri.to_s
         @device_file = gom.retrieve("#{@app_node}:device_file")[:attribute][:value]
-        true
+        @osc_port = gom.retrieve("#{@app_node}:osc_port")[:attribute][:value]
       end
     end
-    
-    
+
     class S < Celluloid::SupervisionGroup
-      supervise GomObserver, as: :gom_observer
+      supervise(GomObserver, as: :gom_observer, block: lambda { |current_actor, data|
+        updates = GnpDmxAdapter.on_gnp data 
+        current_actor.publish "dmx_updates", updates
+      })
       supervise DmxUniverse, as: :dmx_universe
+      supervise OscReceiver, as: :osc_receiver
     end
     
   end

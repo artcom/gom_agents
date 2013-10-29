@@ -9,6 +9,8 @@ module EnttecGomDaemon
 
   require 'enttec_gom_daemon/gom_observer'
   require 'enttec_gom_daemon/dmx_universe'
+  require 'enttec_gom_daemon/osc_receiver'
+  require 'enttec_gom_daemon/gnp_channel_adapter'
   require 'enttec_gom_daemon/rdmx'
   require 'enttec_gom_daemon/app'
   

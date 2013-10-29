@@ -26,6 +26,18 @@ describe EnttecGomDaemon::App do
             :ctime=>"2013-10-28T12:25:34+01:00"
           }
         })
+    allow(subject.gom).to receive(:retrieve).
+      with("/dmx/node:osc_port").
+      and_return(
+        {:attribute=>
+          { :name=>"osc_port", 
+            :node=>"/dnx/node", 
+            :value=>"4444", 
+            :type=>"string", 
+            :mtime=>"2013-10-28T12:25:34+01:00", 
+            :ctime=>"2013-10-28T12:25:34+01:00"
+          }
+        })
     subject.parse ['http://gom:345/dmx/node']
   end
 

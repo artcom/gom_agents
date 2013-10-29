@@ -40,6 +40,8 @@ gem 'celluloid-websocket-client', git: 'https://github.com/jeremyd/celluloid-web
 gem 'gom-client', :git => 'https://github.com/artcom/gom-client-ruby.git'
 gem 'reel'
 gem 'celluloid-io'
+gem 'osc-ruby'
+
 group :test, :development do
   gem 'debugger'
   gem 'guard'
