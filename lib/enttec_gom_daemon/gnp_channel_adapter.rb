@@ -36,7 +36,7 @@ module EnttecGomDaemon
         updates << { :channel => attribute[:name], :value => attribute[:value]}
       elsif gnp.key?(:delete) && gnp[:delete].key?(:attribute) 
         attribute = gnp[:delete][:attribute]
-        updates << { :channel => attribute[:name], :value => "0"}
+        updates << { :channel => attribute[:name], :value => nil}
       else
         warn "unsupported gnp '#{gnp.inspect}'"
       end

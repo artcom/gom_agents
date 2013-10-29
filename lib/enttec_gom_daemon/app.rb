@@ -39,7 +39,7 @@ module EnttecGomDaemon
     class S < Celluloid::SupervisionGroup
       supervise(GomObserver, as: :gom_observer, block: lambda { |current_actor, data|
         updates = GnpDmxAdapter.on_gnp data 
-        current_actor.publish "dmx_updates", updates
+        current_actor.publish "dmx_updates", updates unless updates.empty?
       })
       supervise DmxUniverse, as: :dmx_universe
       supervise OscReceiver, as: :osc_receiver
