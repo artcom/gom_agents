@@ -6,7 +6,7 @@ GIT
       json
 
 GIT
-  remote: https://github.com/jeremyd/celluloid-websocket-client
+  remote: https://github.com/jeremyd/celluloid-websocket-client.git
   revision: 8cded598551bf0b31b4fb82ed125fc0cc3293541
   specs:
     celluloid-websocket-client (0.0.2.pre)
