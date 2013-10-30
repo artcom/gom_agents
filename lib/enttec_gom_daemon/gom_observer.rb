@@ -12,10 +12,10 @@ module EnttecGomDaemon
     def initialize gom = nil, &callback
       @gom = gom || App.gom
       @callback = callback
-      ws_url = @gom.retrieve "/services/websockets_proxy:url"
-      raise "'/services/websockets_proxy:url' not found in gom!" unless ws_url
+      ws_url = @gom.retrieve '/services/websockets_proxy:url'
+      raise '"/services/websockets_proxy:url" not found in gom!' unless ws_url
 
-      debug "GomObserver - initializing"
+      debug 'GomObserver - initializing'
 
       @client = future.open_websocket ws_url[:attribute][:value]
 
@@ -27,10 +27,6 @@ module EnttecGomDaemon
       client
     end
    
-    #def debug_sub c,p
-    #  debug "#{c.inspect} / #{p.inspect}"
-    #end
-
     def on_open
       debug 'GomObserver -- websocket connection opened'
     end
@@ -50,7 +46,7 @@ module EnttecGomDaemon
         warn "unknown data package received: #{data.inspect} - IGNORING"
       end
     rescue JSON::ParserError => e
-      error "receive a package that is not valid json: #{data.inspect} - IGNORING"
+      error "receive a package that is not valid json: #{data.inspect} - IGNORING #{e}"
     end
 
     def gnp_subscribe path
@@ -70,17 +66,17 @@ module EnttecGomDaemon
     end
 
     def handle_initial data
-      payload = { :uri => data['path'], :initial => JSON.parse(data['initial'], :symbolize_names => true) } 
+      payload = { uri: data['path'], initial: JSON.parse(data['initial'], symbolize_names: true) } 
       @callback.call(current_actor, payload) unless @callback.nil?
       # publish @channel, payload 
     end
 
     def die!
-      raise "died intentionally"
+      raise 'died intentionally'
     end
 
     def handle_gnp data
-      payload = JSON.parse(data['payload'], :symbolize_names => true)
+      payload = JSON.parse(data['payload'], symbolize_names: true)
       @callback.call(current_actor, payload) unless @callback.nil?
     end
 

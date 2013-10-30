@@ -4,4 +4,3 @@ class SimpleActor
   include Celluloid::Notifications 
   
 end
-

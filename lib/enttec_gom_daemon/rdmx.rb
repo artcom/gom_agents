@@ -38,7 +38,7 @@ module Rdmx
         packet << (size & 255).chr
         packet << ((size >> 8) & 255).chr
         packet << START
-        packet += data.map{|d|d.respond_to?(:chr) ? d.chr : d}
+        packet += data.map { |d| d.respond_to?(:chr) ? d.chr : d }
         packet << EOM
       end
 

@@ -29,13 +29,13 @@ module EnttecGomDaemon
           c = Integer(update[:channel])
           v = update[:value].nil? ? nil : Integer(update[:value])
           validate_dmx_range c, v
-          @dmx_values[c-1] = v
+          @dmx_values[c - 1] = v
         rescue => e
           warn " ## #{e}"
         end
       end
       # change nil values to '0'
-      @rdmx.write *(@dmx_values.collect {|x| x || 0 }) unless @rdmx.nil?
+      @rdmx.write(*(@dmx_values.collect { |x| x || 0 })) unless @rdmx.nil?
       publish 'dmx_universe', @dmx_values
       if @timer
         @timer.reset
@@ -44,12 +44,13 @@ module EnttecGomDaemon
       end
     end
 
-  private
+    private
+
     def validate_dmx_range chan, value
-      if(chan < 1 or 512 < chan)
+      if chan < 1 || 512 < chan
         raise RangeError, "DMX channel out of range: #{chan}"
       end
-      if(not value.nil? and (value < 0 or 256 <= value)) 
+      if (!value.nil?) && (value < 0 || 256 <= value) 
         raise RangeError, "DMX value out of range: #{value}"
       end
     end
@@ -58,7 +59,7 @@ module EnttecGomDaemon
       info "#{current_actor.class} - persisting to gom"
       attributes = {}
       @dmx_values.each_with_index { |value, index|
-        attributes[(index+1).to_s] = value if value
+        attributes[(index + 1).to_s] = value if value
       }
       @timer = nil
       App.gom.update! @values_path, attributes
