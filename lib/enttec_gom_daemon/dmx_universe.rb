@@ -24,12 +24,14 @@ module EnttecGomDaemon
     end
    
     def update_values _, updates
+      cache_dirty = false
       updates.each do |update|
         begin
           c = Integer(update[:channel])
           v = update[:value].nil? ? nil : Integer(update[:value])
           validate_dmx_range c, v
           @dmx_values[c - 1] = v
+          cache_dirty ||= update[:cache_dirty]
         rescue => e
           warn " ## #{e}"
         end
@@ -37,10 +39,12 @@ module EnttecGomDaemon
       # change nil values to '0'
       @rdmx.write(*(@dmx_values.collect { |x| x || 0 })) unless @rdmx.nil?
       publish 'dmx_universe', @dmx_values
-      if @timer
-        @timer.reset
-      else
-        @timer = after(INACTIVITY_TIMEOUT) { persist }
+      if cache_dirty
+        if @timer
+          @timer.reset
+        else
+          @timer = after(INACTIVITY_TIMEOUT) { persist }
+        end
       end
     end
 

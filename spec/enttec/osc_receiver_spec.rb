@@ -14,7 +14,7 @@ describe EnttecGomDaemon::OscReceiver do
     it 'publishes a DMX channel change' do
       eventually {
         expect(subscriber.received_events.size).to eq(1)
-        expect(subscriber.received_events.last).to eq([{ channel: 5, value: 3 }])
+        expect(subscriber.received_events.last).to eq([{ channel: 5, value: 3, cache_dirty: true }])
       }
     end
   end

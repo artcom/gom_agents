@@ -26,7 +26,7 @@ module EnttecGomDaemon
     def listen
       loop do
         dgram, network = @socket.recvfrom(MAX_SIZE)
-        info "UDP -- incoming raw message: '#{dgram}'"
+        # info "UDP -- incoming raw message: '#{dgram}'"
         begin
           ip_info = Array.new
           ip_info << network[1]
@@ -45,11 +45,12 @@ module EnttecGomDaemon
         address.slice!(0) if address.start_with?('/')
         namespace, universe, channel = address.split('/', 3)
         if namespace == 'light' && universe == '1'
-          updates << { channel: Integer(channel), value: Integer(message.to_a.first) }
+          updates << { channel: Integer(channel), value: Integer(message.to_a.first), cache_dirty: true }
         else
           warn "Unsupported namespace or universe: '#{message.address}'"
         end
       end
+      info "#{self.class} received channel updates: #{updates}"
       publish 'dmx_updates', updates
     end
 
