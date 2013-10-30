@@ -36,7 +36,7 @@ module EnttecGomDaemon
     end
     
     def on_message(data)
-      debug "GomObserver -- message received: #{data.inspect}"
+      # debug "GomObserver -- message received: #{data.inspect}"
       raw_data = JSON.parse(data)
       if raw_data.key? 'initial'
         handle_initial raw_data

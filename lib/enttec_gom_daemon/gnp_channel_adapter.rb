@@ -21,6 +21,7 @@ module EnttecGomDaemon
             updates << {channel: entry[:attribute][:name], value: entry[:attribute][:value]}
           end
         end
+        Celluloid.logger.info "#{self.class} received initial values: #{updates}"
       end
       updates
     end
@@ -40,6 +41,7 @@ module EnttecGomDaemon
       else
         warn "unsupported gnp '#{gnp.inspect}'"
       end
+      Celluloid.logger.info "#{self.class} received channel updates: #{updates}"
       updates
     end
   end
