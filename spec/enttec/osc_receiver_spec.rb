@@ -3,7 +3,7 @@ require 'spec_helper'
 describe EnttecGomDaemon::OscReceiver do
   let(:subscriber) { SimpleSubscriber.new 'dmx_updates' }
 
-  subject { EnttecGomDaemon::OscReceiver.new port: nil }
+  subject { EnttecGomDaemon::OscReceiver.new  }
 
   context 'when receiving an valid OSC packet' do
     before(:each) do

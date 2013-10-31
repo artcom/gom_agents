@@ -3,15 +3,34 @@ require 'json'
 require 'chromatic'
 
 module EnttecGomDaemon
+
+  class GomSubscription
+
+    def initialize path, &callback
+      @path = path
+      @callback = callback
+      @initial_retrieved = false
+
+      def on_initial_data data
+        return if @initial_retrieved
+        @callback.call(data)
+        @initial_retrieved = true
+      end
+
+      def on_change data
+        @callback.call(data)
+      end
+
+    end
+  end
   
   class GomObserver
     include Celluloid
     include Celluloid::Logger
     include Celluloid::Notifications
     
-    def initialize gom = nil, &callback
+    def initialize gom = nil
       @gom = gom || App.gom
-      @callback = callback
       ws_url = @gom.retrieve '/services/websockets_proxy:url'
       raise '"/services/websockets_proxy:url" not found in gom!' unless ws_url
 
@@ -19,6 +38,7 @@ module EnttecGomDaemon
 
       @client = future.open_websocket ws_url[:attribute][:value]
 
+      @subscriptions = {}
     end
 
     def open_websocket url
@@ -49,12 +69,14 @@ module EnttecGomDaemon
       error "receive a package that is not valid json: #{data.inspect} - IGNORING #{e}"
     end
 
-    def gnp_subscribe path
+    def gnp_subscribe path, &block
       info "GomObserver -- subscribing to #{path.inspect}"
       @client.value.text({
         command: 'subscribe',
         path: path
       }.to_json)
+      @subscriptions[path] ||= []
+      @subscriptions[path] << GomSubscription.new(path, &block)
     end
     
     def gnp_unsubscribe path
@@ -66,9 +88,8 @@ module EnttecGomDaemon
     end
 
     def handle_initial data
-      payload = { uri: data['path'], initial: JSON.parse(data['initial'], symbolize_names: true) } 
-      @callback.call(current_actor, payload) unless @callback.nil?
-      # publish @channel, payload 
+      payload = { uri: data['path'], initial: JSON.parse(data['initial'], symbolize_names: true) }
+      @subscriptions[data['path']].each { |s| s.on_initial_data payload }  
     end
 
     def die!
@@ -77,7 +98,7 @@ module EnttecGomDaemon
 
     def handle_gnp data
       payload = JSON.parse(data['payload'], symbolize_names: true)
-      @callback.call(current_actor, payload) unless @callback.nil?
+      @subscriptions[data['path']].each { |s| s.on_change payload } 
     end
 
   end

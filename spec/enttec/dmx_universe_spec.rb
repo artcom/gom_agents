@@ -7,13 +7,13 @@ describe EnttecGomDaemon::DmxUniverse do
   before(:each) {
     @publisher = TestPublisher.new
     @mock_observer = Celluloid::Actor[:gom_observer] = SimpleActor.new
-    allow(@mock_observer.async).to receive(:gnp_subscribe).with('/dmx/node/values')
+    allow(@mock_observer).to receive(:gnp_subscribe).with('/dmx/node/values')
     allow(EnttecGomDaemon::App).to receive(:device_file).and_return(nil)
   }
   subject { EnttecGomDaemon::DmxUniverse.new '/dmx/node/values' }
 
   it 'should subscribe to the values node' do
-    expect(@mock_observer.async).to receive(:gnp_subscribe).with('/dmx/node/values')
+    expect(@mock_observer).to receive(:gnp_subscribe).with('/dmx/node/values')
     subject
   end
 
@@ -94,10 +94,7 @@ describe EnttecGomDaemon::DmxUniverse do
         { channel: '1', value: '255' }
       ]
       @expected[0] = 255
-      eventually {
-        expect(subscriber.received_events.size).to eq(2)
-        expect(subscriber.received_events.last).to eq(@expected)
-      }
+      expect(subject.dmx_values).to eq(@expected)
     end
     
     it 'processes GOM creates' do
@@ -105,10 +102,7 @@ describe EnttecGomDaemon::DmxUniverse do
         { channel: '2', value: '5' }
       ]
       @expected[1] = 5
-      eventually {
-        expect(subscriber.received_events.size).to eq(2)
-        expect(subscriber.received_events.last).to eq(@expected)
-      }
+      expect(subject.dmx_values).to eq(@expected)
     end
     it 'processes GOM deletes' do
       @publisher.send_message 'dmx_updates', [
@@ -116,8 +110,7 @@ describe EnttecGomDaemon::DmxUniverse do
       ]
       @expected[16] = nil
       eventually {
-        expect(subscriber.received_events.size).to eq(2)
-        expect(subscriber.received_events.last).to eq(@expected)
+        expect(subject.dmx_values).to eq(@expected)
       }
     end
   end

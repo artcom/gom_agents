@@ -15,12 +15,27 @@ module EnttecGomDaemon
     def initialize values_path = nil
       @values_path = values_path || "#{App.app_node}/values"
       @dmx_values = (Array.new 512, nil) # nil means not-in-gom (eq '0')
-      @rdmx = Rdmx::Dmx.new App.device_file unless App.device_file.nil? 
+      @device_file = begin
+        App.gom.retrieve("#{App.app_node}:device_file")[:attribute][:value]
+      rescue
+        Celluloid::Logger.error "#{App.app_node}:device_file missing - not opening serial port"
+        nil
+      end
+      @rdmx = Rdmx::Dmx.new @device_file unless @device_file.nil? 
 
       debug 'DmxUniverse -- initializing'
       link Celluloid::Actor[:gom_observer]
       subscribe 'dmx_updates', :update_values
-      Actor[:gom_observer].async.gnp_subscribe @values_path
+      Actor[:gom_observer].gnp_subscribe @values_path do |data|
+        updates = GnpDmxAdapter.on_gnp data
+        update_values nil, updates unless updates.empty?
+      end
+      Actor[:gom_observer].gnp_subscribe @values_path do |data|
+        info "LEFT  HAND received #{data}"
+      end
+      Actor[:gom_observer].gnp_subscribe @values_path do |data|
+        info "RIGHT HAND received #{data}"
+      end
     end
    
     def update_values _, updates

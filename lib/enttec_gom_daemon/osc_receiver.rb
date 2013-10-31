@@ -9,8 +9,13 @@ module EnttecGomDaemon
     
     MAX_SIZE = 16_384
     
-    def initialize options = {}
-      @port = options.key?(:port) ? options[:port] : App.osc_port
+    def initialize 
+      @port = begin
+        App.gom.retrieve("#{App.app_node}:osc_port")[:attribute][:value]
+      rescue
+        Celluloid::Logger.error "#{App.app_node}:osc_port missing - not starting OSC server" if @osc_port.nil?
+        nil
+      end
       if @port
         @socket = UDPSocket.new
         @socket.bind '0.0.0.0', @port
