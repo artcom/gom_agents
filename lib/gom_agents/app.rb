@@ -14,10 +14,10 @@ module Gom
       class S < Celluloid::SupervisionGroup; end
 
       def run
-        S.supervise Gom::Observer, as: :gom_observer
+        S.supervise Gom::Observer, as: :gom_observer if App.gom
 
         # more_actors
-        Gom::Agents.autoload
+        Gom::Agents.autostart if Gom::Agents.methods.include?(:autostart)
 
         S.run
       end
@@ -37,9 +37,13 @@ module Gom
           end
           parser.banner = "#{$PROGRAM_NAME} [gom-node-uri]"
           parser.parse!(argv)
-          gom_uri = URI.parse(argv.first) + '/'
-          @app_node = URI.parse(argv.first).path
-          @gom =  Gom::Client.new gom_uri.to_s
+          if argv.empty?
+            warn "GOM uri missing! not starting gom support!"
+          else
+            gom_uri = URI.parse(argv.first) + '/'
+            @app_node = URI.parse(argv.first).path
+            @gom =  Gom::Client.new gom_uri.to_s
+          end
         end
       end
 

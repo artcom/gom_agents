@@ -6,7 +6,11 @@ require 'bundler/setup'
 $LOAD_PATH.push File.expand_path('../../lib', __FILE__)
 require 'gom_agents'
 
-require './config/autoload'
+begin
+  require './config/autoload'
+rescue LoadError => ex
+  warn 'missing ./config/autoload - not loading any application actors.'
+end
 
 begin
   APP = Gom::Agents::App.instance
