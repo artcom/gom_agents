@@ -31,7 +31,7 @@ module Gom
               puts VERSION
               exit(0)
             end
-            o.on '-l', '--logfile [logfile]', String, 'log to this inseatd of stdout' do |arg|
+            o.on '-l', '--logfile [logfile]', String, 'log to this instead of stdout' do |arg|
               Celluloid.logger = ::Logger.new(arg)
             end
           end
