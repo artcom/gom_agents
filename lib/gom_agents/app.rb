@@ -11,15 +11,15 @@ module Gom
 
       include Singleton
 
-      class S < Celluloid::SupervisionGroup; end
+      class Supervisor < Celluloid::SupervisionGroup; end
 
       def run
-        S.supervise Gom::Observer, as: :gom_observer if App.gom
+        Supervisor.supervise Gom::Observer, as: :gom_observer if App.gom
 
         # more_actors
         Gom::Agents.autostart if Gom::Agents.methods.include?(:autostart)
 
-        S.run
+        Supervisor.run
       end
 
       class << self

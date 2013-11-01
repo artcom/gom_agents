@@ -7,9 +7,9 @@ $LOAD_PATH.push File.expand_path('../../lib', __FILE__)
 require 'gom_agents'
 
 begin
-  require './config/autoload'
+  require './config/autostart'
 rescue LoadError => ex
-  warn 'missing ./config/autoload - not loading any application actors.'
+  warn "#{ex} - not loading any application actors."
 end
 
 begin
