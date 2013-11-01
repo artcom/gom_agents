@@ -5,6 +5,6 @@ rdoc
 tmp
 pkg
 log/*
-*.gemspec
+Gemfile.lock
 .ruby-gemset
 .ruby-version
