@@ -16,6 +16,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
  
   gem.bindir        = 'bin'
+  gem.executables   << 'enttec-gom-daemon'
   gem.add_runtime_dependency('serialport')
   gem.add_runtime_dependency('nokogiri')
   gem.add_runtime_dependency('hybridgroup-celluloid-websocket-client')
