@@ -8,7 +8,7 @@ guard :rspec, all_on_start: true do
   #   Dir["spec/**/#{m[1]}*_spec.rb"]
   # }
   
-  watch(%r{^lib\/enttec_gom_daemon\/(.+)\.rb$}) { |m|
+  watch(%r{^lib\/gom_agents\/(.+)\.rb$}) { |m|
     Dir[
       #{}"spec/**/#{m[1]}_*_spec.rb",
       "spec/**/#{m[1]}*_spec.rb"

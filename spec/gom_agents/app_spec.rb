@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe EnttecGomDaemon do
+describe Gom::Agents do
 
   specify { expect(subject).to respond_to(:version) }
   specify { expect(subject).to have_constant(:VERSION) }
@@ -8,8 +8,8 @@ describe EnttecGomDaemon do
   
 end
 
-describe EnttecGomDaemon::App do
-  subject { EnttecGomDaemon::App }
+describe Gom::Agents::App do
+  subject { Gom::Agents::App }
   
   before(:each) do
     allow_message_expectations_on_nil

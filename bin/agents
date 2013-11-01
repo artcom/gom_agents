@@ -4,13 +4,13 @@ require 'rubygems'
 require 'bundler/setup'
 
 $LOAD_PATH.push File.expand_path('../../lib', __FILE__)
-require 'enttec_gom_daemon'
+require 'gom_agents'
 
 require './config/autoload'
 
 begin
-  APP = EnttecGomDaemon::App.instance
-  EnttecGomDaemon::App.parse
+  APP = Gom::Agents::App.instance
+  Gom::Agents::App.parse
   APP.run
 rescue => e
   raise e if $DEBUG

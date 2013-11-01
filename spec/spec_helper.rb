@@ -28,7 +28,7 @@ else
   puts ' * NOT Performing coverage via simplecov'.yellow
 end
 
-require 'enttec_gom_daemon'
+require 'gom_agents'
 
 Dir[File.dirname(__FILE__) + '/support/**/*.rb'].each { |f| require f }
 

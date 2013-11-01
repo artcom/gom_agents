@@ -2,9 +2,9 @@ require 'celluloid/websocket/client'
 require 'json'
 require 'chromatic'
 
-module EnttecGomDaemon
+module Gom
 
-  class GomSubscription
+  class Subscription
 
     def initialize path, &callback
       @path = path
@@ -24,17 +24,17 @@ module EnttecGomDaemon
     end
   end
   
-  class GomObserver
+  class Observer
     include Celluloid
     include Celluloid::Logger
     include Celluloid::Notifications
     
     def initialize gom = nil
-      @gom = gom || App.gom
+      @gom = gom || Gom::Agents::App.gom
       ws_url = @gom.retrieve '/services/websockets_proxy:url'
       raise '"/services/websockets_proxy:url" not found in gom!' unless ws_url
 
-      debug 'GomObserver - initializing'
+      debug 'Gom::Observer - initializing'
 
       @client = future.open_websocket ws_url[:attribute][:value]
 
@@ -48,15 +48,15 @@ module EnttecGomDaemon
     end
    
     def on_open
-      debug 'GomObserver -- websocket connection opened'
+      debug 'Gom::Observer -- websocket connection opened'
     end
     
     def on_close(code, reason)
-      debug "GomObserver -- websocket connection closed: #{code.inspect}, #{reason.inspect}"
+      debug "Gom::Observer -- websocket connection closed: #{code.inspect}, #{reason.inspect}"
     end
     
     def on_message(data)
-      # debug "GomObserver -- message received: #{data.inspect}"
+      # debug "Gom::Observer -- message received: #{data.inspect}"
       raw_data = JSON.parse(data)
       if raw_data.key? 'initial'
         handle_initial raw_data
@@ -70,17 +70,17 @@ module EnttecGomDaemon
     end
 
     def gnp_subscribe path, &block
-      info "GomObserver -- subscribing to #{path.inspect}"
+      info "Gom::Observer -- subscribing to #{path.inspect}"
       @client.value.text({
         command: 'subscribe',
         path: path
       }.to_json)
       @subscriptions[path] ||= []
-      @subscriptions[path] << GomSubscription.new(path, &block)
+      @subscriptions[path] << Subscription.new(path, &block)
     end
     
     def gnp_unsubscribe path
-      info "GomObserver -- subscribing from #{path.inspect}"
+      info "Gom::Observer -- subscribing from #{path.inspect}"
       @client.future.text({
         command: 'unsubscribe',
         path: path
