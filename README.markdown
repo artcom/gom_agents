@@ -5,6 +5,8 @@ actor-based agents with full GOM support.
    
 TODO: more documentation
 
+Take a look at the [examples](examples/README.md)
+
 ## Note on Patches/Pull Requests
  
  * Fork the project.
