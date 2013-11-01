@@ -10,7 +10,7 @@ module EnttecGomDaemon
   
     INACTIVITY_TIMEOUT = 5 # seconds to wait for inactivity
 
-    attr_reader :dmx_values
+    attr_reader :dmx_values, :device_file
 
     def initialize values_path = nil
       @values_path = values_path || "#{App.app_node}/values"

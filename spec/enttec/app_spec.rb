@@ -45,7 +45,4 @@ describe EnttecGomDaemon::App do
     expect(subject.app_node).to eq('/dmx/node') 
   end
 
-  #it 'should load the device_file name' do
-  #  expect(subject.device_file).to eq('/dev/cu.usbserial-ENRV27QZ')
-  #end
 end

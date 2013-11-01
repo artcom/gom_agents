@@ -5,13 +5,32 @@ describe EnttecGomDaemon::DmxUniverse do
   let(:subscriber) { SimpleSubscriber.new 'dmx_universe' }
 
   before(:each) {
+    allow_message_expectations_on_nil
     @publisher = TestPublisher.new
     @mock_observer = Celluloid::Actor[:gom_observer] = SimpleActor.new
+    allow(Gom::Client).to receive(:new).with('http://gom:345/')
+    allow(Rdmx::Dmx).to receive(:new).with('/dev/cu.usbserial-ENRV27QZ').and_return(nil)
+    allow(EnttecGomDaemon::App.gom).to receive(:retrieve)
+      .with('/dmx/node:device_file')
+      .and_return(
+         attribute: 
+          { name: 'device_file', 
+            node: '/dnx/node', 
+            value: '/dev/cu.usbserial-ENRV27QZ', 
+            type: 'string', 
+            mtime: '2013-10-28T12:25:34+01:00', 
+            ctime: '2013-10-28T12:25:34+01:00'
+          }
+        )
     allow(@mock_observer).to receive(:gnp_subscribe).with('/dmx/node/values')
-    allow(EnttecGomDaemon::App).to receive(:device_file).and_return(nil)
+    allow(EnttecGomDaemon::App).to receive(:app_node).and_return('/dmx/node')
   }
   subject { EnttecGomDaemon::DmxUniverse.new '/dmx/node/values' }
 
+  it 'should load the device_file name' do
+    expect(subject.device_file).to eq('/dev/cu.usbserial-ENRV27QZ')
+  end
+  
   it 'should subscribe to the values node' do
     expect(@mock_observer).to receive(:gnp_subscribe).with('/dmx/node/values')
     subject
