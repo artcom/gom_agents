@@ -11,6 +11,9 @@ Gem::Specification.new do |gem|
   gem.authors       = ['artcom']
   gem.email         = 'info@artcom.de'
   gem.homepage      = 'http://www.artcom.de'
+  gem.required_ruby_version = '>= 1.9.3'
+
+  gem.requirements << 'A gom instance (or compatible equivalent)'
   
   gem.files         = Dir['lib/gom_agents/*']
   gem.require_paths = ['lib']
