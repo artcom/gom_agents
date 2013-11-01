@@ -4,13 +4,22 @@ require 'singleton'
 # starts the notification pubsub subsystem
 require 'celluloid/autostart'
 
-module EnttecGomDaemon
+module EnttecGomDaemon # rename to GomAgents
   
   class App
 
     include Singleton
     
+    class S < Celluloid::SupervisionGroup; end
+    
     def run
+      S.supervise GomObserver, as: :gom_observer
+      S.supervise DmxUniverse, as: :dmx_universe
+      S.supervise OscReceiver, as: :osc_receiver
+      
+      # more_actors
+      EnttecGomDaemon.autoload
+
       S.run
     end
     
@@ -35,12 +44,6 @@ module EnttecGomDaemon
       end
     end
 
-    class S < Celluloid::SupervisionGroup
-      supervise GomObserver, as: :gom_observer
-      supervise DmxUniverse, as: :dmx_universe
-      supervise OscReceiver, as: :osc_receiver
-    end
-    
   end
   
 end
