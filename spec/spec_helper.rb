@@ -32,7 +32,10 @@ require 'gom_agents'
 
 Dir[File.dirname(__FILE__) + '/support/**/*.rb'].each { |f| require f }
 
-redirect_celluloid_log unless ENV['CELLULOID_LOG']
+setup_celluloid_logger(
+  ENV['CELLULOID_LOGGER_OUT'] || 'stdout',
+  ENV['CELLULOID_LOGGER_LEVEL'] || 'error'
+)
 
 Celluloid.shutdown_timeout = 1
 
