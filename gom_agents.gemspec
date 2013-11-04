@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.required_ruby_version = '>= 1.9.3'
 
   gem.requirements << 'A gom instance (or compatible equivalent)'
+  gem.requirements << 'A GNP Websocket bridge for the gom'
   
   gem.files         = Dir['lib/gom_agents/*']
   gem.require_paths = ['lib']
@@ -31,6 +32,9 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('guard-rspec')
   gem.add_development_dependency('guard-bundler')
   gem.add_development_dependency('guard-rubocop')
+  gem.add_development_dependency('simplecov')
+  gem.add_development_dependency('simplecov-rcov')
+  #gem.add_development_dependency('yard')
   gem.add_development_dependency('rubocop')
 end
 
