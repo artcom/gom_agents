@@ -38,7 +38,7 @@ module Gom
           parser.banner = "#{$PROGRAM_NAME} [gom-node-uri]"
           parser.parse!(argv)
           if argv.empty?
-            warn "GOM uri missing! not starting gom support!"
+            warn 'GOM uri missing! not starting gom support!'
           else
             gom_uri = URI.parse(argv.first) + '/'
             @app_node = URI.parse(argv.first).path

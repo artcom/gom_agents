@@ -1,6 +1,6 @@
 # -*- encoding: utf-8 -*-
 
-$:.push File.expand_path('../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name          = 'producer_agent'
@@ -16,4 +16,3 @@ Gem::Specification.new do |gem|
  
   gem.add_runtime_dependency('gom_agents')
 end
-
