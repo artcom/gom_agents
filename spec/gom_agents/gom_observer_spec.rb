@@ -12,7 +12,7 @@ describe Gom::Observer do
 
   before(:each) do
     @test_root = gom.create!('/tests')
-    puts "Using test root path '#{@test_root}'".yellow
+    #puts "Using test root path '#{@test_root}'".yellow
     @subscriber = SimpleActor.new
   end
   
@@ -42,7 +42,6 @@ describe Gom::Observer do
       
       def test_subscribe gom_observer, test_root
         gom_observer.gnp_subscribe("#{test_root}:foo") { |gnp|
-          puts gnp.inspect
           @last_change = gnp
         }
       end
