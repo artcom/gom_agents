@@ -12,7 +12,7 @@ describe Gom::Observer do
 
   before(:each) do
     @test_root = gom.create!('/tests')
-    #puts "Using test root path '#{@test_root}'".yellow
+    # puts "Using test root path '#{@test_root}'".yellow
     @subscriber = SimpleActor.new
   end
   
