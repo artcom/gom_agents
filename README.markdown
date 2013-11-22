@@ -1,5 +1,7 @@
 # GOM Agents 
 
+[![Dependency Status](https://gemnasium.com/artcom/gom_agents.png)](https://gemnasium.com/artcom/gom_agents)
+
 GOM Agents is a generic, reusable service framework for celluloid
 actor-based agents with full GOM support.
    
