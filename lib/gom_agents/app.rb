@@ -1,12 +1,9 @@
 require 'optparse'
 require 'singleton'
 
-# starts the notification pubsub subsystem
-require 'celluloid/autostart'
-
 module Gom
-  module Agents 
-  
+  module Agents
+
     class App
 
       include Singleton
@@ -14,6 +11,9 @@ module Gom
       class Supervisor < Celluloid::SupervisionGroup; end
 
       def run
+        # starts the notification pubsub subsystem
+        require 'celluloid/autostart'
+
         Supervisor.supervise Gom::Observer, as: :gom_observer if App.gom
 
         # more_actors
