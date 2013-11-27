@@ -3,9 +3,7 @@ require 'singleton'
 
 module Gom
   module Agents
-
     class App
-
       include Singleton
 
       class Supervisor < Celluloid::SupervisionGroup; end
@@ -46,7 +44,6 @@ module Gom
           end
         end
       end
-
     end
-  end  
+  end
 end

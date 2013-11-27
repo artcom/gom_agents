@@ -15,7 +15,7 @@ describe Gom::Observer do
     # puts "Using test root path '#{@test_root}'".yellow
     @subscriber = SimpleActor.new
   end
-  
+
   after(:each) do
     gom.destroy @test_root
   end
@@ -23,8 +23,8 @@ describe Gom::Observer do
   it 'retrieves initial values on gnp_subscribe' do
     @subscriber.wrapped_object.class.class_eval {
       attr_reader :initial_payload
-      
-      def test_subscribe gom_observer, test_root
+
+      def test_subscribe(gom_observer, test_root)
         gom_observer.gnp_subscribe("#{test_root}:foo") { |gnp|
           @initial_payload = gnp
         }
@@ -35,18 +35,18 @@ describe Gom::Observer do
       expect(@subscriber.initial_payload).not_to be_nil
     }
   end
-  
+
   it 'retrieves changing values on gnp_subscribe' do
     @subscriber.wrapped_object.class.class_eval {
       attr_reader :last_change
-      
-      def test_subscribe gom_observer, test_root
+
+      def test_subscribe(gom_observer, test_root)
         gom_observer.gnp_subscribe("#{test_root}:foo") { |gnp|
           @last_change = gnp
         }
       end
-      
-      def test_update gom, test_root
+
+      def test_update(gom, test_root)
         gom.update("#{test_root}:foo", 'bar')
       end
     }
@@ -59,5 +59,5 @@ describe Gom::Observer do
       expect(@subscriber.last_change).to have_key(:create)
     }
   end
-  
+
 end

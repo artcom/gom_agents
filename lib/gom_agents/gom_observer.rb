@@ -3,36 +3,33 @@ require 'json'
 require 'chromatic'
 
 module Gom
-
   class Subscription
-
-    def initialize path, &callback
+    def initialize(path, &callback)
       @path = path
       @callback = callback
       @initial_retrieved = false
 
-      def on_initial_data data
+      def on_initial_data(data)
         return if @initial_retrieved
         @callback.call(data)
         @initial_retrieved = true
       end
 
-      def on_change data
+      def on_change(data)
         @callback.call(data)
       end
-
     end
   end
-  
+
   class Observer
     include Celluloid
     include Celluloid::Logger
     include Celluloid::Notifications
-    
-    def initialize gom = nil
+
+    def initialize(gom = nil)
       @gom = gom || Gom::Agents::App.gom
       ws_url = @gom.retrieve '/services/websockets_proxy:url'
-      raise '"/services/websockets_proxy:url" not found in gom!' unless ws_url
+      fail '"/services/websockets_proxy:url" not found in gom!' unless ws_url
 
       debug 'Gom::Observer - initializing'
 
@@ -42,20 +39,20 @@ module Gom
       @subscriptions = {}
     end
 
-    def open_websocket url
+    def open_websocket(url)
       client = Celluloid::WebSocket::Client.new(url, current_actor)
       link client
       client
     end
-   
+
     def on_open
       debug %Q|Gom::Observer -- websocket connection to #{@ws_url.inspect} opened|
     end
-    
+
     def on_close(code, reason)
       debug "Gom::Observer -- websocket connection closed: #{code.inspect}, #{reason.inspect}"
     end
-    
+
     def on_message(data)
       # debug "Gom::Observer -- message received: #{data.inspect}"
       raw_data = JSON.parse(data)
@@ -70,7 +67,7 @@ module Gom
       error "receive a package that is not valid json: #{data.inspect} - IGNORING #{e}"
     end
 
-    def gnp_subscribe path, &block
+    def gnp_subscribe(path, &block)
       info "Gom::Observer -- subscribing to #{path.inspect}"
       @client.value.text({
         command: 'subscribe',
@@ -79,8 +76,8 @@ module Gom
       @subscriptions[path] ||= []
       @subscriptions[path] << Subscription.new(path, &block)
     end
-    
-    def gnp_unsubscribe path
+
+    def gnp_unsubscribe(path)
       info "Gom::Observer -- subscribing from #{path.inspect}"
       @client.future.text({
         command: 'unsubscribe',
@@ -88,20 +85,18 @@ module Gom
       }.to_json)
     end
 
-    def handle_initial data
+    def handle_initial(data)
       payload = { uri: data['path'], initial: JSON.parse(data['initial'], symbolize_names: true) }
-      @subscriptions[data['path']].each { |s| s.on_initial_data payload }  
+      @subscriptions[data['path']].each { |s| s.on_initial_data payload }
     end
 
     def die!
-      raise 'died intentionally'
+      fail 'died intentionally'
     end
 
-    def handle_gnp data
+    def handle_gnp(data)
       payload = JSON.parse(data['payload'], symbolize_names: true)
-      @subscriptions[data['path']].each { |s| s.on_change payload } 
+      @subscriptions[data['path']].each { |s| s.on_change payload }
     end
-
   end
-  
 end

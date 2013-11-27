@@ -2,13 +2,13 @@ Encoding:
   Enabled: false
 
 TrailingWhitespace:
-  Enabled: false
-  
+  Enabled: true
+
 DefWithParentheses:
-  Enabled: false
+  Enabled: true
 
 DefWithoutParentheses:
-  Enabled: false
+  Enabled: true
 
 LineLength:
   Enabled: false
@@ -28,28 +28,40 @@ MethodLength:
   Enabled: false
 
 CaseEquality:
-  Enabled: false
+  Enabled: true
 
 StringLiterals:
   Enabled: true
 
 SpaceInsideHashLiteralBraces:
-  Enabled: false
+  Enabled: true
 
 Loop:
-  Enabled: false
+  Enabled: true
 
 CollectionMethods:
-  Enabled: false
+  Enabled: true
 
 RedundantReturn:
   Enabled: true
 
 CommentAnnotation:
-  Enabled: false
+  Enabled: true
 
 AssignmentInCondition:
-  Enabled: false
+  Enabled: true
 
 SignalException:
+  Enabled: true
+
+CyclomaticComplexity:
   Enabled: false
+
+IfUnlessModifier:
+  Enabled: true
+
+MethodCalledOnDoEndBlock:
+  Enabled: true
+
+SymbolArray:
+  Enabled: true

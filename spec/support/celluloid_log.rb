@@ -1,6 +1,6 @@
 require 'fileutils'
 
-def setup_celluloid_logger output, level
+def setup_celluloid_logger(output, level)
   puts ' * Setting up Celluloid Logger: '.yellow
   case output
   when 'file'
@@ -13,7 +13,7 @@ def setup_celluloid_logger output, level
   when 'stdout'
     puts '   * Celluloid Logger output: STDOUT'.yellow
   else
-    raise "unknown output for celluloid logger: #{output}"
+    fail "unknown output for celluloid logger: #{output}"
   end
 
   case level
@@ -21,6 +21,6 @@ def setup_celluloid_logger output, level
     puts "   * level: #{level}".yellow
     Celluloid.logger.level = Logger.const_get(level.upcase)
   else
-    raise "unknown loglevel for celluloid logger: #{level}"
+    fail "unknown loglevel for celluloid logger: #{level}"
   end
 end
