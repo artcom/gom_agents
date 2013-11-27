@@ -36,7 +36,8 @@ module Gom
 
       debug 'Gom::Observer - initializing'
 
-      @client = future.open_websocket ws_url[:attribute][:value]
+      @ws_url = ws_url[:attribute][:value]
+      @client = future.open_websocket @ws_url
 
       @subscriptions = {}
     end
@@ -48,7 +49,7 @@ module Gom
     end
    
     def on_open
-      debug 'Gom::Observer -- websocket connection opened'
+      debug %Q|Gom::Observer -- websocket connection to #{@ws_url.inspect} opened|
     end
     
     def on_close(code, reason)
