@@ -23,7 +23,7 @@ module Gom
       end
 
       class << self
-        attr_reader :gom, :app_node, :device_file, :osc_port
+        attr_reader :gom, :app_node
 
         def parse(argv = ARGV)
           parser = OptionParser.new do |o|
