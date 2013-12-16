@@ -29,8 +29,7 @@ else
 end
 
 require 'gom_agents'
-
-Dir[File.dirname(__FILE__) + '/support/**/*.rb'].each { |f| require f }
+require 'gom_agents/rspec'
 
 setup_celluloid_logger(
   ENV['CELLULOID_LOGGER_OUT'] || 'stdout',

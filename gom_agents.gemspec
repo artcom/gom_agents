@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
   gem.requirements << 'A GNP Websocket bridge for the gom'
   
   gem.files         = Dir['lib/gom_agents/*']
+  gem.test_files = Dir['spec/**/*', 'Rakefile', 'lib/tasks/**/*']-Dir['spec/reports/*']
   gem.require_paths = ['lib']
  
   gem.bindir        = 'bin'
