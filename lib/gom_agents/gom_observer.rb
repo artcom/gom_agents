@@ -78,8 +78,8 @@ module Gom
     end
 
     def gnp_unsubscribe(path)
-      info "Gom::Observer -- subscribing from #{path.inspect}"
-      @client.future.text({
+      info "Gom::Observer -- unsubscribing from #{path.inspect}"
+      @client.value.text({
         command: 'unsubscribe',
         path: path
       }.to_json)
