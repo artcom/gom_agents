@@ -26,9 +26,11 @@ describe Gom::Observer do
   it 'retrieves changing values on gnp_subscribe' do
     @subscriber.subscribe(@test_attribute)
     eventually { expect(@subscriber.last_gnp).to have_key(:initial) }
+    eventually { expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil) }
 
     gom.update(@test_attribute, 'bar')
     eventually { expect(@subscriber.last_gnp).to have_key(:create) }
+    eventually { expect(@subscriber.last_gnp[:create][:attribute][:value]).to eq('bar') }
   end
 
 end
