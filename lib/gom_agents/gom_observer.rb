@@ -10,16 +10,16 @@ module Gom
       @path = path
       @callback = callback
       @initial_retrieved = false
+    end
 
-      def on_initial_data(data)
-        return if @initial_retrieved
-        @callback.call(data)
-        @initial_retrieved = true
-      end
+    def on_initial_data(data)
+      return if @initial_retrieved
+      @callback.call(data)
+      @initial_retrieved = true
+    end
 
-      def on_change(data)
-        @callback.call(data)
-      end
+    def on_change(data)
+      @callback.call(data)
     end
   end
 
