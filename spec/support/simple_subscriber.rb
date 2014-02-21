@@ -14,4 +14,8 @@ class SimpleSubscriber
       @last_gnp = gnp
     end
   end
+
+  def gnp_unsubscribe(path)
+    @gom_observer.gnp_unsubscribe(path)
+  end
 end

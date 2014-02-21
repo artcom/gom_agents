@@ -33,4 +33,31 @@ describe Gom::Observer do
     eventually { expect(@subscriber.last_gnp[:create][:attribute][:value]).to eq('bar') }
   end
 
+  it 'allows re-subscription after unsubscription' do
+    # subscribe and get initial value
+    @subscriber.gnp_subscribe(@test_attribute)
+    eventually { expect(@subscriber.last_gnp).to have_key(:initial) }
+    eventually { expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil) }
+
+    # unsubscribe
+    @subscriber.gnp_unsubscribe(@test_attribute)
+
+    # subscribe new subscriber and get initial value
+    subscriber2 = SimpleSubscriber.new(subject)
+    subscriber2.gnp_subscribe(@test_attribute)
+    eventually { expect(subscriber2.last_gnp).to have_key(:initial) }
+    eventually { expect(subscriber2.last_gnp[:initial][:attribute][:value]).to eq(nil) }
+
+    # update value
+    gom.update(@test_attribute, 'foo')
+
+    # get new value with second subscriber
+    eventually { expect(subscriber2.last_gnp).to have_key(:create) }
+    eventually { expect(subscriber2.last_gnp[:create][:attribute][:value]).to eq('foo') }
+
+    # but not with the first one
+    expect(@subscriber.last_gnp).to have_key(:initial)
+    expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil)
+  end
+
 end
