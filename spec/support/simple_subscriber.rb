@@ -9,7 +9,7 @@ class SimpleSubscriber
     @gom_observer = gom_observer
   end
 
-  def subscribe(path)
+  def gnp_subscribe(path)
     @gom_observer.gnp_subscribe(path) do |gnp|
       @last_gnp = gnp
     end

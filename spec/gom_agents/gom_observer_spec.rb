@@ -19,12 +19,12 @@ describe Gom::Observer do
   end
 
   it 'retrieves initial values on gnp_subscribe' do
-    @subscriber.subscribe(@test_attribute)
+    @subscriber.gnp_subscribe(@test_attribute)
     eventually { expect(@subscriber.last_gnp).not_to be_nil }
   end
 
   it 'retrieves changing values on gnp_subscribe' do
-    @subscriber.subscribe(@test_attribute)
+    @subscriber.gnp_subscribe(@test_attribute)
     eventually { expect(@subscriber.last_gnp).to have_key(:initial) }
     eventually { expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil) }
 
