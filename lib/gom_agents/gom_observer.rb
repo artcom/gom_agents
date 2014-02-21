@@ -6,7 +6,8 @@ module Gom
   class Subscription
     attr_reader :path
 
-    def initialize(path, &callback)
+    def initialize(observer, path, &callback)
+      @observer = observer
       @path = path
       @callback = callback
       @initial_retrieved = false
@@ -20,6 +21,10 @@ module Gom
 
     def on_change(data)
       @callback.call(data)
+    end
+
+    def unsubscribe
+      @observer.gnp_unsubscribe(self)
     end
   end
 
@@ -81,7 +86,7 @@ module Gom
       end
 
       info "Gom::Observer -- adding subscription for #{path.inspect}"
-      subscription = Subscription.new(path, &block)
+      subscription = Subscription.new(Actor.current, path, &block)
       @subscriptions[path] << subscription
 
       subscription

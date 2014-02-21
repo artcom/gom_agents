@@ -40,7 +40,7 @@ describe Gom::Observer do
     eventually { expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil) }
 
     # unsubscribe
-    @subscriber.gnp_unsubscribe(subscription)
+    subscription.unsubscribe
 
     # subscribe new subscriber and get initial value
     subscriber2 = SimpleSubscriber.new(subject)
