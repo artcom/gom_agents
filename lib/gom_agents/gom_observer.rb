@@ -48,7 +48,7 @@ module Gom
     end
 
     def on_open
-      debug %Q|Gom::Observer -- websocket connection to #{@ws_url.inspect} opened|
+      debug "Gom::Observer -- websocket connection to #{@ws_url.inspect} opened"
     end
 
     def on_close(code, reason)
