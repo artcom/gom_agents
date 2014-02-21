@@ -4,6 +4,8 @@ require 'chromatic'
 
 module Gom
   class Subscription
+    attr_reader :path
+
     def initialize(path, &callback)
       @path = path
       @callback = callback
@@ -68,21 +70,36 @@ module Gom
     end
 
     def gnp_subscribe(path, &block)
-      info "Gom::Observer -- subscribing to #{path.inspect}"
-      @client.value.text({
-        command: 'subscribe',
-        path: path
-      }.to_json)
       @subscriptions[path] ||= []
-      @subscriptions[path] << Subscription.new(path, &block)
+
+      if @subscriptions[path].empty?
+        info "Gom::Observer -- subscribing to #{path.inspect}"
+        @client.value.text({
+          command: 'subscribe',
+          path: path
+        }.to_json)
+      end
+
+      info "Gom::Observer -- adding subscription for #{path.inspect}"
+      subscription = Subscription.new(path, &block)
+      @subscriptions[path] << subscription
+
+      subscription
     end
 
-    def gnp_unsubscribe(path)
-      info "Gom::Observer -- unsubscribing from #{path.inspect}"
-      @client.value.text({
-        command: 'unsubscribe',
-        path: path
-      }.to_json)
+    def gnp_unsubscribe(subscription)
+      path = subscription.path
+
+      info "Gom::Observer -- removing subscription for #{path.inspect}"
+      @subscriptions[path].delete(subscription)
+
+      if @subscriptions[path].empty?
+        info "Gom::Observer -- unsubscribing from #{path.inspect}"
+        @client.value.text({
+          command: 'unsubscribe',
+          path: path
+        }.to_json)
+      end
     end
 
     def handle_initial(data)

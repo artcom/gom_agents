@@ -35,12 +35,12 @@ describe Gom::Observer do
 
   it 'allows re-subscription after unsubscription' do
     # subscribe and get initial value
-    @subscriber.gnp_subscribe(@test_attribute)
+    subscription = @subscriber.gnp_subscribe(@test_attribute)
     eventually { expect(@subscriber.last_gnp).to have_key(:initial) }
     eventually { expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil) }
 
     # unsubscribe
-    @subscriber.gnp_unsubscribe(@test_attribute)
+    @subscriber.gnp_unsubscribe(subscription)
 
     # subscribe new subscriber and get initial value
     subscriber2 = SimpleSubscriber.new(subject)
