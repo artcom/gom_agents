@@ -39,7 +39,7 @@ module Gom
             warn 'GOM uri missing! not starting gom support!'
           else
             gom_uri = URI.parse(argv.first) + '/'
-            @app_node = URI.parse(argv.first).path
+            @app_node = URI.parse(argv.first).path.chomp('/')
             @gom =  Gom::Client.new gom_uri.to_s
           end
         end
