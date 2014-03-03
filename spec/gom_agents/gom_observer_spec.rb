@@ -33,6 +33,15 @@ describe Gom::Observer do
     eventually { expect(@subscriber.last_gnp[:create][:attribute][:value]).to eq('bar') }
   end
 
+  it 'retrieves changing values for child attributes on gnp_subscribe' do
+    @subscriber.gnp_subscribe(@test_root)
+    eventually { expect(@subscriber.last_gnp).to have_key(:initial) }
+
+    gom.update(@test_attribute, 'foo')
+    eventually { expect(@subscriber.last_gnp).to have_key(:create) }
+    eventually { expect(@subscriber.last_gnp[:create][:attribute][:value]).to eq('foo') }
+  end
+
   it 'allows re-subscription after unsubscription' do
     # subscribe and get initial value
     subscription = @subscriber.gnp_subscribe(@test_attribute)
