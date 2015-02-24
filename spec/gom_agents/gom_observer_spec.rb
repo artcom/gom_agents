@@ -69,4 +69,23 @@ describe Gom::Observer do
     expect(@subscriber.last_gnp[:initial][:attribute][:value]).to eq(nil)
   end
 
+  it 'supports convenient attribute subscription' do
+    @subscriber.on_attribute(@test_attribute)
+    eventually_expect_attribute(@test_attribute, :initial, nil)
+
+    gom.update(@test_attribute, 'foo')
+    eventually_expect_attribute(@test_attribute, :create, 'foo')
+
+    gom.update(@test_attribute, 'bar')
+    eventually_expect_attribute(@test_attribute, :update, 'bar')
+
+    gom.destroy(@test_attribute)
+    eventually_expect_attribute(@test_attribute, :delete, nil)
+  end
+
+  def eventually_expect_attribute(path, event, value)
+    eventually { expect(@subscriber.last_path).to eq(path) }
+    eventually { expect(@subscriber.last_event).to eq(event) }
+    eventually { expect(@subscriber.last_value).to eq(value) }
+  end
 end

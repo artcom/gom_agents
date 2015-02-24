@@ -107,6 +107,20 @@ module Gom
       end
     end
 
+    EVENTS = %i(initial create update delete)
+
+    def on_attribute(path)
+      gnp_subscribe(path) do |data|
+        EVENTS.each do |event|
+          if data.key?(event)
+            value = data[event][:attribute][:value]
+            path = data[:uri]
+            yield value, event, path
+          end
+        end
+      end
+    end
+
     def handle_initial(data)
       payload = { uri: data['path'], initial: JSON.parse(data['initial'], symbolize_names: true) }
       @subscriptions[data['path']].each { |s| s.on_initial_data payload }
