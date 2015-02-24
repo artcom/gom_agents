@@ -1,4 +1,4 @@
-class SimpleSubscriber
+class TestSubscriber
   include Celluloid
   include Celluloid::Notifications
   include Celluloid::Logger

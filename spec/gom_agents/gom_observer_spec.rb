@@ -11,7 +11,7 @@ describe Gom::Observer do
   before(:each) do
     @test_root = gom.create!('/tests')
     @test_attribute = "#{@test_root}:foo"
-    @subscriber = SimpleSubscriber.new(subject)
+    @subscriber = TestSubscriber.new(subject)
   end
 
   after(:each) do
@@ -52,7 +52,7 @@ describe Gom::Observer do
     subscription.unsubscribe
 
     # subscribe new subscriber and get initial value
-    subscriber2 = SimpleSubscriber.new(subject)
+    subscriber2 = TestSubscriber.new(subject)
     subscriber2.gnp_subscribe(@test_attribute)
     eventually { expect(subscriber2.last_gnp).to have_key(:initial) }
     eventually { expect(subscriber2.last_gnp[:initial][:attribute][:value]).to eq(nil) }
