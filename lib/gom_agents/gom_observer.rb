@@ -21,12 +21,46 @@ module Gom
     end
   end
 
+  class Connection
+    include Celluloid
+    include Celluloid::Logger
+
+    PING_INTERVAL = 30 # seconds
+    INACTIVITY_TIMEOUT = 2 * PING_INTERVAL + 5 # seconds
+
+    def initialize(url, handler)
+      @client = future.open_websocket(url, handler)
+      schedule_timeout
+    end
+
+    def send(data)
+      @client.value.text(data)
+    end
+
+    def open_websocket(url, handler)
+      client = Celluloid::WebSocket::Client.new(url, handler)
+      link client
+      client
+    end
+
+    private
+
+    def schedule_timeout
+      timer = after(INACTIVITY_TIMEOUT) { fail 'GNP WebSocket Bridge not responding' }
+
+      every(PING_INTERVAL) do
+        @client.value.ping { timer.reset }
+      end
+    end
+  end
+
   class Observer
     include Celluloid
     include Celluloid::Logger
-    include Celluloid::Notifications
 
-    INACTIVITY_TIMEOUT = 60 # seconds
+    RECONNECT_DELAY = 30 # seconds
+
+    trap_exit :actor_died
 
     def initialize(gom = nil)
       @gom = gom || Gom::Agents::App.gom
@@ -36,42 +70,27 @@ module Gom
       debug 'Gom::Observer - initializing'
 
       @ws_url = ws_url[:attribute][:value]
-      @client = future.open_websocket @ws_url
-      schedule_timeout
-
       @subscriptions = {}
+
+      connect
     end
 
-    def open_websocket(url)
-      client = Celluloid::WebSocket::Client.new(url, Actor.current)
-      link client
-      client
+    def connect
+      @connected = false
+      @connection = Connection.new_link(@ws_url, Actor.current)
     end
 
-    def on_open
-      debug "Gom::Observer -- websocket connection to #{@ws_url.inspect} opened"
+    def reconnect
+      after(RECONNECT_DELAY) { connect }
     end
 
-    def on_close(code, reason)
-      debug "Gom::Observer -- websocket connection closed: #{code.inspect}, #{reason.inspect}"
-    end
-
-    def on_message(data)
-      raw_data = JSON.parse(data)
-      if raw_data.key? 'initial'
-        handle_initial raw_data
-      elsif raw_data.key? 'payload'
-        handle_gnp raw_data
-      else
-        warn "unknown data package received: #{data.inspect} - IGNORING"
-      end
-    rescue JSON::ParserError => e
-      error "receive a package that is not valid json: #{data.inspect} - IGNORING #{e}"
+    def actor_died(actor, reason)
+      reconnect if actor == @connection
     end
 
     def gnp_subscribe(path, &block)
       @subscriptions[path] ||= []
-      do_subscribe(path) if @subscriptions[path].empty?
+      do_subscribe(path) if @connected && @subscriptions[path].empty?
 
       info "Gom::Observer -- adding subscription for #{path.inspect}"
       subscription = Subscription.new(Actor.current, path, &block)
@@ -86,7 +105,7 @@ module Gom
       info "Gom::Observer -- removing subscription for #{path.inspect}"
       @subscriptions[path].delete(subscription)
 
-      do_unsubscribe(path) if @subscriptions[path].empty?
+      do_unsubscribe(path) if @connected && @subscriptions[path].empty?
     end
 
     EVENTS = %i(initial create update delete)
@@ -103,15 +122,32 @@ module Gom
       end
     end
 
-    private
-
-    def schedule_timeout
-      timer = after(INACTIVITY_TIMEOUT) { fail 'GNP WebSocket Bridge not responding' }
-
-      every(INACTIVITY_TIMEOUT / 2) do
-        @client.value.ping { timer.reset }
-      end
+    def on_open
+      debug "Gom::Observer -- websocket connection to #{@ws_url.inspect} opened"
+      @connected = true
+      @subscriptions.keys.each { |path| do_subscribe(path) }
     end
+
+    def on_close(code, reason)
+      debug "Gom::Observer -- websocket connection closed: #{code.inspect}, #{reason.inspect}"
+      @connected = false
+      reconnect
+    end
+
+    def on_message(data)
+      raw_data = JSON.parse(data)
+      if raw_data.key? 'initial'
+        handle_initial raw_data
+      elsif raw_data.key? 'payload'
+        handle_gnp raw_data
+      else
+        warn "unknown data package received: #{data.inspect} - IGNORING"
+      end
+    rescue JSON::ParserError => e
+      error "receive a package that is not valid json: #{data.inspect} - IGNORING #{e}"
+    end
+
+    private
 
     def do_subscribe(path)
       info "Gom::Observer -- subscribing to #{path.inspect}"
@@ -124,7 +160,7 @@ module Gom
     end
 
     def send_command(command, path)
-      @client.value.text({
+      @connection.send({
         command: command,
         path: path
       }.to_json)
