@@ -10,16 +10,9 @@ module Gom
       @observer = observer
       @path = path
       @callback = callback
-      @initial_retrieved = false
     end
 
-    def on_initial_data(data)
-      return if @initial_retrieved
-      @callback.call(data)
-      @initial_retrieved = true
-    end
-
-    def on_change(data)
+    def on_gnp(data)
       @callback.call(data)
     end
 
@@ -143,12 +136,12 @@ module Gom
         initial: JSON.parse(data['initial'], symbolize_names: true)
       }
 
-      @subscriptions[data['path']].each { |s| s.on_initial_data payload }
+      @subscriptions[data['path']].each { |s| s.on_gnp payload }
     end
 
     def handle_gnp(data)
       payload = JSON.parse(data['payload'], symbolize_names: true)
-      @subscriptions[data['path']].each { |s| s.on_change payload }
+      @subscriptions[data['path']].each { |s| s.on_gnp payload }
     end
   end
 end
