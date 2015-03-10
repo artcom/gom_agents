@@ -33,6 +33,8 @@ module Gom
     include Celluloid::Logger
     include Celluloid::Notifications
 
+    INACTIVITY_TIMEOUT = 60 # seconds
+
     def initialize(gom = nil)
       @gom = gom || Gom::Agents::App.gom
       ws_url = @gom.retrieve '/services/websockets_proxy:url'
@@ -42,6 +44,7 @@ module Gom
 
       @ws_url = ws_url[:attribute][:value]
       @client = future.open_websocket @ws_url
+      schedule_timeout
 
       @subscriptions = {}
     end
@@ -50,6 +53,14 @@ module Gom
       client = Celluloid::WebSocket::Client.new(url, current_actor)
       link client
       client
+    end
+
+    def schedule_timeout
+      timer = after(INACTIVITY_TIMEOUT) { fail 'GNP WebSocket Bridge not responding' }
+
+      every(INACTIVITY_TIMEOUT / 2) do
+        @client.value.ping { timer.reset }
+      end
     end
 
     def on_open
