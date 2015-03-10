@@ -12,8 +12,8 @@ module Gom
       @callback = callback
     end
 
-    def on_gnp(data)
-      @callback.call(data)
+    def notify(payload)
+      @callback.call(payload)
     end
 
     def unsubscribe
@@ -135,11 +135,12 @@ module Gom
     end
 
     def on_message(data)
-      raw_data = JSON.parse(data)
-      if raw_data.key? 'initial'
-        handle_initial raw_data
-      elsif raw_data.key? 'payload'
-        handle_gnp raw_data
+      json = JSON.parse(data, symbolize_names: true)
+      path = json[:path]
+      payload = extract_payload(json)
+
+      if path && payload
+        handle_gnp(path, payload)
       else
         warn "unknown data package received: #{data.inspect} - IGNORING"
       end
@@ -166,18 +167,18 @@ module Gom
       }.to_json)
     end
 
-    def handle_initial(data)
-      payload = {
-        uri: data['path'],
-        initial: JSON.parse(data['initial'], symbolize_names: true)
-      }
-
-      @subscriptions[data['path']].each { |s| s.on_gnp payload }
+    def extract_payload(json)
+      if json.key?(:initial)
+        { uri: json[:path], initial: JSON.parse(json[:initial], symbolize_names: true) }
+      elsif json.key?(:payload)
+        JSON.parse(json[:payload], symbolize_names: true)
+      else
+        nil
+      end
     end
 
-    def handle_gnp(data)
-      payload = JSON.parse(data['payload'], symbolize_names: true)
-      @subscriptions[data['path']].each { |s| s.on_gnp payload }
+    def handle_gnp(path, payload)
+      @subscriptions[path].each { |s| s.notify payload }
     end
   end
 end
