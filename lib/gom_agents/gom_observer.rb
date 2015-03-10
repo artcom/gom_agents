@@ -50,17 +50,9 @@ module Gom
     end
 
     def open_websocket(url)
-      client = Celluloid::WebSocket::Client.new(url, current_actor)
+      client = Celluloid::WebSocket::Client.new(url, Actor.current)
       link client
       client
-    end
-
-    def schedule_timeout
-      timer = after(INACTIVITY_TIMEOUT) { fail 'GNP WebSocket Bridge not responding' }
-
-      every(INACTIVITY_TIMEOUT / 2) do
-        @client.value.ping { timer.reset }
-      end
     end
 
     def on_open
@@ -72,7 +64,6 @@ module Gom
     end
 
     def on_message(data)
-      # debug "Gom::Observer -- message received: #{data.inspect}"
       raw_data = JSON.parse(data)
       if raw_data.key? 'initial'
         handle_initial raw_data
@@ -87,14 +78,7 @@ module Gom
 
     def gnp_subscribe(path, &block)
       @subscriptions[path] ||= []
-
-      if @subscriptions[path].empty?
-        info "Gom::Observer -- subscribing to #{path.inspect}"
-        @client.value.text({
-          command: 'subscribe',
-          path: path
-        }.to_json)
-      end
+      do_subscribe(path) if @subscriptions[path].empty?
 
       info "Gom::Observer -- adding subscription for #{path.inspect}"
       subscription = Subscription.new(Actor.current, path, &block)
@@ -109,13 +93,7 @@ module Gom
       info "Gom::Observer -- removing subscription for #{path.inspect}"
       @subscriptions[path].delete(subscription)
 
-      if @subscriptions[path].empty?
-        info "Gom::Observer -- unsubscribing from #{path.inspect}"
-        @client.value.text({
-          command: 'unsubscribe',
-          path: path
-        }.to_json)
-      end
+      do_unsubscribe(path) if @subscriptions[path].empty?
     end
 
     EVENTS = %i(initial create update delete)
@@ -132,13 +110,40 @@ module Gom
       end
     end
 
-    def handle_initial(data)
-      payload = { uri: data['path'], initial: JSON.parse(data['initial'], symbolize_names: true) }
-      @subscriptions[data['path']].each { |s| s.on_initial_data payload }
+    private
+
+    def schedule_timeout
+      timer = after(INACTIVITY_TIMEOUT) { fail 'GNP WebSocket Bridge not responding' }
+
+      every(INACTIVITY_TIMEOUT / 2) do
+        @client.value.ping { timer.reset }
+      end
     end
 
-    def die!
-      fail 'died intentionally'
+    def do_subscribe(path)
+      info "Gom::Observer -- subscribing to #{path.inspect}"
+      send_command('subscribe', path)
+    end
+
+    def do_unsubscribe(path)
+      info "Gom::Observer -- unsubscribing from #{path.inspect}"
+      send_command('unsubscribe', path)
+    end
+
+    def send_command(command, path)
+      @client.value.text({
+        command: command,
+        path: path
+      }.to_json)
+    end
+
+    def handle_initial(data)
+      payload = {
+        uri: data['path'],
+        initial: JSON.parse(data['initial'], symbolize_names: true)
+      }
+
+      @subscriptions[data['path']].each { |s| s.on_initial_data payload }
     end
 
     def handle_gnp(data)
